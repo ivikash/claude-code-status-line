@@ -25,6 +25,7 @@ PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1
 TOTAL_TOKENS=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
 CTX_SIZE=$(echo "$input" | jq -r '.context_window.context_window_size // 0')
 COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
 
 if [ -n "${NO_COLOR:-}" ]; then
     CYAN=''; GREEN=''; YELLOW=''; RED=''; DIM=''; RESET=''
@@ -71,6 +72,16 @@ else BAR_COLOR="$GREEN"; fi
 
 COST_FMT=$(printf '$%.2f' "$COST")
 
+# Session duration, formatted compactly (e.g. 45s, 3m, 1h2m)
+DUR_STR=$(awk -v ms="$DURATION_MS" 'BEGIN {
+    s = int(ms / 1000)
+    if (s <= 0) { print ""; exit }
+    h = int(s / 3600); m = int((s % 3600) / 60); sec = s % 60
+    if (h > 0)      printf "%dh%dm", h, m
+    else if (m > 0) printf "%dm", m
+    else            printf "%ds", sec
+}')
+
 # Shorten model name for display
 MODEL_SHORT=$(echo "$MODEL" | sed 's/ (.*//; s/Claude //; s/Opus/opus/; s/Sonnet/sonnet/; s/Haiku/haiku/')
 
@@ -92,5 +103,6 @@ fi
 LINE="$LINE${SEP}${DIM}${MODEL_SHORT}${RESET}${SEP}${BAR_COLOR}${PCT}%${RESET}"
 [ -n "$TOKEN_STR" ] && LINE="$LINE ${DIM}(${TOKEN_STR})${RESET}"
 LINE="$LINE${SEP}${DIM}${COST_FMT}${RESET}"
+[ -n "$DUR_STR" ] && LINE="$LINE${SEP}${DIM}${DUR_STR}${RESET}"
 
 echo -e "$LINE"
