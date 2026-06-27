@@ -32,8 +32,27 @@ else
     CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; DIM='\033[2m'; RESET='\033[0m'
 fi
 
-# Current directory name (basename of the working dir)
-DIR_NAME=$(basename "${DIR:-$PWD}")
+# Directory display: path relative to ~, with intermediate segments collapsed
+# to their first character and the final segment kept in full.
+#   ~                      -> ~
+#   ~/projects             -> ~/projects
+#   ~/projects/foo/bar      -> ~/p/f/bar
+DIR_NAME=$(awk -v p="${DIR:-$PWD}" -v home="$HOME" 'BEGIN {
+    if (home != "" && (p == home || index(p, home "/") == 1)) {
+        p = "~" substr(p, length(home) + 1)
+    }
+    n = split(p, seg, "/")
+    out = ""
+    for (i = 1; i <= n; i++) {
+        s = seg[i]
+        if (s == "") continue
+        # collapse everything except the final non-empty segment
+        if (i < n && length(s) > 1) s = substr(s, 1, 1)
+        out = (out == "" ? (index(p, "/") == 1 ? "/" : "") : out "/") s
+    }
+    if (out == "") out = "/"
+    print out
+}')
 
 # Git branch
 BRANCH=""
@@ -55,9 +74,12 @@ COST_FMT=$(printf '$%.2f' "$COST")
 # Shorten model name for display
 MODEL_SHORT=$(echo "$MODEL" | sed 's/ (.*//; s/Claude //; s/Opus/opus/; s/Sonnet/sonnet/; s/Haiku/haiku/')
 
+# Separator between segments
+SEP="  "
+
 # Build output
 LINE="${CYAN}${DIR_NAME}${RESET}"
-[ -n "$BRANCH" ] && LINE="$LINE ${DIM} ${BRANCH}${RESET}"
+[ -n "$BRANCH" ] && LINE="$LINE${SEP}${DIM} ${BRANCH}${RESET}"
 # Format token counts (e.g. 12k/200k)
 if [ "$CTX_SIZE" -gt 0 ] 2>/dev/null; then
     TOKENS_K=$(awk "BEGIN {printf \"%.0f\", $TOTAL_TOKENS/1000}")
@@ -67,8 +89,8 @@ else
     TOKEN_STR=""
 fi
 
-LINE="$LINE  ${DIM}${MODEL_SHORT}${RESET}  ${BAR_COLOR}${PCT}%${RESET}"
+LINE="$LINE${SEP}${DIM}${MODEL_SHORT}${RESET}${SEP}${BAR_COLOR}${PCT}%${RESET}"
 [ -n "$TOKEN_STR" ] && LINE="$LINE ${DIM}(${TOKEN_STR})${RESET}"
-LINE="$LINE ${DIM}${COST_FMT}${RESET}"
+LINE="$LINE${SEP}${DIM}${COST_FMT}${RESET}"
 
 echo -e "$LINE"
