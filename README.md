@@ -5,10 +5,10 @@ A small, portable [statusline](https://docs.claude.com/en/docs/claude-code/statu
 It shows, in one line:
 
 ```
-my-project  main*  opus 4.8  12% (50k/1000k) $0.42
+~/p/my-project   main*  opus 4.8  12% (50k/1000k)  $0.42
 ```
 
-- **directory** — basename of the current working directory (cyan)
+- **directory** — path relative to `~`, with intermediate segments collapsed to their first character and the final segment kept full (e.g. `~/projects/foo/bar` → `~/p/f/bar`); cyan
 - **git branch** — current branch, falls back to short commit hash on detached HEAD; a trailing `*` means uncommitted changes
 - **model** — shortened display name (e.g. `opus 4.8`)
 - **context %** — context window used, colored green/yellow/red at 50%/80%
@@ -34,24 +34,24 @@ Honors the [`NO_COLOR`](https://no-color.org/) convention.
 
 ```bash
 # 1. Save the script
-curl -fsSL https://raw.githubusercontent.com/<you>/claude-statusline/main/claude-statusline.sh \
-  -o ~/.claude/statusline.sh
-chmod +x ~/.claude/statusline.sh
+curl -fsSL https://raw.githubusercontent.com/ivikash/claude-code-status-line/main/claude-statusline.sh \
+  -o ~/.claude/claude-statusline.sh
+chmod +x ~/.claude/claude-statusline.sh
 ```
 
-Then add to `~/.claude/settings.json`:
+Then add to `~/.claude/settings.json` (replace `YOUR_USERNAME` with your home
+directory path — `~` is **not** expanded here, so use an absolute path):
 
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "/absolute/path/to/statusline.sh"
+    "command": "/home/YOUR_USERNAME/.claude/claude-statusline.sh"
   }
 }
 ```
 
-Use an **absolute path** (`~` is not expanded). Restart Claude Code or reload
-config for it to take effect.
+Restart Claude Code or reload config for it to take effect.
 
 ## Test it without Claude Code
 
