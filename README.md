@@ -28,8 +28,6 @@ renders as the status bar.
 - `awk`
 - `git` (optional — branch info is just skipped outside a repo)
 
-Honors the [`NO_COLOR`](https://no-color.org/) convention.
-
 ## Install
 
 ```bash
