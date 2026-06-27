@@ -57,7 +57,7 @@ MODEL_SHORT=$(echo "$MODEL" | sed 's/ (.*//; s/Claude //; s/Opus/opus/; s/Sonnet
 
 # Build output
 LINE="${CYAN}${DIR_NAME}${RESET}"
-[ -n "$BRANCH" ] && LINE="$LINE ${DIM}${BRANCH}${RESET}"
+[ -n "$BRANCH" ] && LINE="$LINE ${DIM} ${BRANCH}${RESET}"
 # Format token counts (e.g. 12k/200k)
 if [ "$CTX_SIZE" -gt 0 ] 2>/dev/null; then
     TOKENS_K=$(awk "BEGIN {printf \"%.0f\", $TOTAL_TOKENS/1000}")
