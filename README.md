@@ -39,14 +39,13 @@ curl -fsSL https://raw.githubusercontent.com/ivikash/claude-code-status-line/mai
 chmod +x ~/.claude/claude-statusline.sh
 ```
 
-Then add to `~/.claude/settings.json` (replace `YOUR_USERNAME` with your home
-directory path — `~` is **not** expanded here, so use an absolute path):
+Then add to `~/.claude/settings.json`:
 
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "/home/YOUR_USERNAME/.claude/claude-statusline.sh"
+    "command": "~/.claude/claude-statusline.sh"
   }
 }
 ```
